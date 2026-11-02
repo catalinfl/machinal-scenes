@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "url": "/scene.html",
+  "sceneId": "title",
+  "config": {
+    "width": 640,
+    "height": 360,
+    "fps": 30,
+    "durationInFrames": 180
+  }
+}

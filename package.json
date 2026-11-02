@@ -1,0 +1,89 @@
+{
+  "name": "@machinal/scenes",
+  "version": "0.1.0",
+  "description": "Author, preview and render frame-driven Svelte, HTML and Three.js scenes to MP4 and WebM",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/catalinfl/machinal-scenes#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/catalinfl/machinal-scenes.git" },
+  "bugs": { "url": "https://github.com/catalinfl/machinal-scenes/issues" },
+  "packageManager": "pnpm@11.9.0",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "svelte": "./dist/index.js",
+  "bin": { "machinal-scenes": "bin/machinal-scenes.mjs" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js",
+      "default": "./dist/runtime/index.js"
+    },
+    "./svelte": {
+      "types": "./dist/svelte/index.d.ts",
+      "svelte": "./dist/svelte/index.js",
+      "default": "./dist/svelte/index.js"
+    },
+    "./node": {
+      "types": "./node/index.d.ts",
+      "import": "./node/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "node/",
+    "native/",
+    "renderer/*.go",
+    "renderer/cmd/**/*.go",
+    "renderer/go.mod",
+    "renderer/go.sum",
+    "dist/",
+    "examples/quickstart/src/",
+    "examples/quickstart/index.html",
+    "examples/quickstart/scene.html",
+    "examples/quickstart/scene.config.json",
+    "examples/quickstart/package.json",
+    "examples/quickstart/tsconfig.json",
+    "examples/quickstart/vite.config.js",
+    "examples/quickstart/svelte.config.js",
+    "LICENSE",
+    "NOTICE",
+    "LICENSING.md",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": ["**/*.css"],
+  "engines": { "node": ">=22.12.0" },
+  "keywords": ["svelte", "svelte5", "animation", "motion-graphics", "video", "threejs", "scenes", "frame-driven"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "scripts": {
+    "build": "pnpm run build:package",
+    "build:package": "pnpm --filter @direction/scene-runtime build && pnpm --filter @direction/scene-svelte build && node scripts/build-package.mjs",
+    "build:renderer": "node scripts/build-renderer.mjs",
+    "check": "pnpm --filter @direction/scene-runtime check && pnpm --filter @direction/scene-svelte check",
+    "test": "vitest run",
+    "test:package": "pnpm run build:package && pnpm run build:renderer && node --test tests/package.test.mjs",
+    "test:cli": "pnpm run build:package && node --test tests/cli.test.mjs",
+    "test:go": "go -C renderer test ./...",
+    "prepack": "pnpm run build:package && pnpm run build:renderer",
+    "prepublishOnly": "pnpm check && pnpm test && pnpm test:cli && pnpm test:go && pnpm test:package"
+  },
+  "dependencies": {
+    "@puppeteer/browsers": "3.2.6",
+    "@types/three": "^0.180.0",
+    "@webgpu/types": "^0.1.74",
+    "three": "^0.180.0"
+  },
+  "peerDependencies": { "svelte": "^5.15.0" },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^26.1.2",
+    "cross-spawn": "^7.0.6",
+    "svelte": "^5.15.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12"
+  }
+}

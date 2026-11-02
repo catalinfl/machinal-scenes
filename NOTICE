@@ -1,0 +1,8 @@
+@machinal/scenes
+Copyright 2026 Catalin Flintasu.
+
+This product includes the frame-driven scene runtime, Svelte integration and renderer
+developed for Machinal. It is distributed under the Apache License, Version 2.0.
+
+Third-party dependencies retain their own copyright and license notices.
+Native executable dependency notices are provided in native/THIRD_PARTY_NOTICES.txt.
