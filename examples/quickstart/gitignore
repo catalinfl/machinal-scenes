@@ -1,0 +1,6 @@
+node_modules/
+dist/
+renders/
+*.mp4
+*.webm
+*.scene.json

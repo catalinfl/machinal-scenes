@@ -59,7 +59,7 @@ async function probe(path, args) {
 export async function doctor(options = {}) {
   const paths = toolPaths(options);
   let renderer;
-  try { renderer = await probe(await rendererPath(), ['-h']); }
+  try { renderer = await probe(await rendererPath(), ['-version']); }
   catch (error) { renderer = { available: false, error: error.message }; }
   const [browser, ffmpeg] = await Promise.all([probe(paths.browser, ['--version']), probe(paths.ffmpeg, ['-version'])]);
   return { ready: renderer.available && browser.available && ffmpeg.available, cacheDirectory: paths.cache, renderer, browser, ffmpeg };
@@ -69,20 +69,24 @@ export async function setup(options = {}) {
   const paths = toolPaths(options);
   await rendererPath();
   const report = options.onProgress ?? (() => {});
-  if (!options.browserExecutable && !process.env.SCENE_BROWSER) {
+  if (!options.browserExecutable && !process.env.SCENE_BROWSER && !await isInstalled(paths.browser)) {
     report(`Installing Chrome Headless Shell ${browserBuild} (official Chrome for Testing download)...`);
     await install({ browser: Browser.CHROMEHEADLESSSHELL, buildId: browserBuild, cacheDir: join(paths.cache, 'browser'), installDeps: false });
   }
   if (!options.ffmpegExecutable && !process.env.SCENE_FFMPEG) {
-    report(`Installing FFmpeg ${ffmpegRelease} (checksum-verified release, including license and build information)...`);
-    await installFFmpeg(paths.ffmpeg);
+    await installFFmpeg(paths.ffmpeg, report);
   }
   const status = await doctor(options);
   if (!status.ready) throw new Error(`Rendering tools are not ready:\n${[status.renderer, status.browser, status.ffmpeg].filter(tool => !tool.available).map(tool => `${tool.path ?? 'renderer'}: ${tool.error}`).join('\n')}\nOn Linux, Chromium also requires system shared libraries; see the README.`);
   return status;
 }
 
-async function installFFmpeg(executable) {
+async function isInstalled(executable) {
+  try { await access(executable); return true; }
+  catch (error) { if (error.code === 'ENOENT') return false; throw error; }
+}
+
+async function installFFmpeg(executable, report) {
   const target = `${process.platform}-${process.arch}`;
   const hashes = ffmpegReleases[target];
   const directory = dirname(executable);
@@ -94,6 +98,7 @@ async function installFFmpeg(executable) {
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
+  report(`Installing FFmpeg ${ffmpegRelease} (checksum-verified release, including license and build information)...`);
   await mkdir(dirname(directory), { recursive: true });
   const temporary = await mkdtemp(join(dirname(directory), '.install-'));
   const base = `https://github.com/eugeneware/ffmpeg-static/releases/download/${ffmpegRelease}`;

@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { downloadVerified } from '../node/download.mjs';
+import { formatRenderResult, formatToolchainStatus } from '../node/cli-output.mjs';
 import { platformTarget, rendererTargets } from '../node/platforms.mjs';
 import { renderVideo } from '../node/render.mjs';
 import { cacheDirectory } from '../node/toolchain.mjs';
@@ -16,6 +17,26 @@ async function temporary(t) {
   t.after(() => rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }));
   return directory;
 }
+
+test('tool summaries show readiness without dumping paths or version banners', () => {
+  const available = { available: true, path: '/private/tool', version: 'verbose build metadata' };
+  const output = formatToolchainStatus({ ready: true, cacheDirectory: '/private/cache', renderer: available, browser: available, ffmpeg: available });
+  assert.equal(output, 'Rendering tools are ready.\n  Renderer: ready\n  Chrome Headless Shell: ready\n  FFmpeg: ready');
+  assert.doesNotMatch(output, /private|version|metadata|\{/);
+});
+
+test('tool summaries retain actionable failures', () => {
+  const output = formatToolchainStatus({ ready: false, renderer: { available: true }, browser: { available: false, error: 'Not installed. Run machinal-scenes setup.' }, ffmpeg: { available: false } });
+  assert.match(output, /Rendering tools are not ready/);
+  assert.match(output, /Chrome Headless Shell: Not installed. Run machinal-scenes setup/);
+  assert.match(output, /FFmpeg: not available/);
+});
+
+test('render summaries identify the video without dumping scene parameters or metrics', () => {
+  const output = formatRenderResult({ file: '/output/scene.mp4', width: 1280, height: 720, fps: 30, duration: 6, scene: { props: { secret: 'internal' } }, metrics: { workers: 2 } });
+  assert.equal(output, 'Rendered /output/scene.mp4\n1280 × 720 · 30 fps · 6 s');
+  assert.doesNotMatch(output, /props|secret|metrics|workers|\{/);
+});
 
 test('native target selection is explicit and unsupported platforms fail clearly', () => {
   assert.equal(rendererTargets.length, 4);

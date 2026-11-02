@@ -12,7 +12,7 @@ In a Svelte 5 project with a Svelte-aware bundler, such as Vite:
 npm install @machinal/scenes
 ```
 
-Requires Node.js 22.12+ and Svelte 5.15+. Three.js and its public TypeScript types are installed as dependencies. There are no install scripts: Chromium and FFmpeg are downloaded only when you explicitly run `setup`. The native renderer is already in the package.
+Requires Node.js 22.12+ and Svelte 5.15+. Three.js and its public TypeScript types are installed as dependencies. There are no install scripts: Chromium and FFmpeg are downloaded only when you explicitly run `setup` or click **Download rendering tools** in the starter. The native renderer is already in the package. Run `npm install` inside a project directory, not a drive root such as `D:\`.
 
 The library is ESM. The root and `/svelte` entrypoints contain Svelte components and runes, so they must be processed by a Svelte-aware bundler. Use `/runtime` for framework-independent code, plain Node.js imports and manifest validation.
 
@@ -28,7 +28,18 @@ npm run render
 
 This creates **`scene.mp4`** and **`scene.mp4.scene.json`**, a manifest containing the output's dimensions, duration, frame count and SHA-256. `setup` is a one-time download of pinned Chrome Headless Shell and FFmpeg into a user cache; it checks that the tools execute. `npm run render` builds the scene with Vite and exports the video locally using the included renderer.
 
-Edit `src/Title.svelte` to change the artwork and `scene.config.json` to change dimensions, FPS, duration, props or audio. For interactive preview, run `npm run dev`; preview does not require `setup`. `npm run doctor` checks rendering prerequisites without downloading anything.
+The CLI shows readable tool status and a short export summary, not the internal metadata report. For scripts that need the complete JSON result, use `npm run setup -- --json`, `npm run doctor -- --json` or `npm run render -- --json`. Progress stays on stderr; call `machinal-scenes render --json` directly for JSON-only stdout (the npm script also prints Vite build output). The Node API and saved manifests always retain the full metadata.
+
+For the browser workflow, run `npm run dev` and open the local URL shown in the terminal:
+
+1. **Preview**: play, pause, reset or scrub the default **1280 × 720** scene, scaled to fit the available preview space. No rendering tools are required.
+2. **Download rendering tools**: the export panel checks the included renderer, Chrome and FFmpeg. If tools are missing, this explicit action downloads them once to your user cache. Already installed tools are marked **Ready**.
+3. **Render MP4**: builds the current scene source and exports it locally, with visible status and renderer progress.
+4. **Download MP4**: saves the completed video through your browser. A copy and its manifest also remain in a **local** `renders/` directory, created inside the starter next to its `package.json` when you render. For example, a starter at `D:\my-scene` saves browser exports under `D:\my-scene\renders\`. The completed export shows the full local path. Each export uses a unique filename; previous exports are preserved. Nothing is uploaded to S3 or Machinal, and the tool does not connect to your application or any Machinal project.
+
+The browser export actions run only through the loopback Vite development server (`npm run dev`), not on a statically hosted build or `npm run preview`. They require same-origin requests; there is no cloud render service or automatic download on page load. The terminal workflow above remains available.
+
+Edit `src/Title.svelte` to change the artwork and `scene.config.json` to change dimensions, FPS, duration, props or audio. `npm run doctor` checks rendering prerequisites without downloading anything.
 
 The initializer refuses to overwrite an existing directory. Rendering also refuses to replace an existing video or manifest. Choose another output filename for another export:
 
@@ -148,9 +159,25 @@ Linux requires glibc, `unzip`, and Chromium's system libraries (NSS, ATK, X11, G
 
 Scenes are executable code, not a security sandbox. Use trusted scenes or provide your own execution isolation, authorization and resource limits.
 
-## Development
+## VS Code reports missing children or rejects onclick
 
-This repository contains only the standalone library, CLI, renderer and quickstart. See [DEVELOPMENT.md](DEVELOPMENT.md) to build and test from source, and [RELEASING.md](RELEASING.md) for maintainer release instructions. No Machinal application or private service is required.
+These two diagnostics can appear together when the Svelte extension is running in **Restricted Mode**:
+
+```text
+Property 'children' is missing in type '{ background: string; }'
+'"onclick"' does not exist in type 'HTMLProps<"button", HTMLAttributes<any>>'
+```
+
+In an untrusted workspace, the extension avoids loading the project's local compiler and can fall back to its bundled Svelte 4 compiler/types. The starter uses Svelte 5: nested component content supplies the `children` snippet, and `onclick` is a supported button attribute.
+
+Open the generated starter directory itself in VS Code and run `npm install` there. If you have reviewed and trust its code, use **Workspaces: Manage Workspace Trust** to trust only that folder, then **Svelte: Restart Language Server**. Do not disable Workspace Trust globally. You can also validate the project independently of the editor:
+
+```sh
+npm run check
+npm ls svelte
+```
+
+With the local Svelte 5 compiler, these starter components should pass the check. If the terminal also reports errors, investigate those diagnostics and the installed dependency versions rather than treating them as an editor-only issue. Do not make `SceneCanvas.children` optional or replace Svelte 5 event handlers just to suppress a mismatched editor diagnostic.
 
 ## License
 

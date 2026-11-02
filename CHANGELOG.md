@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1
+
+- Show readable setup/doctor status and a concise render result by default; use `--json` for complete tool and scene metadata. The Node API and saved scene manifests are unchanged.
+- Report the native renderer's real version instead of its help banner.
+- Reuse cached tools without announcing another Chrome or FFmpeg installation; FFmpeg integrity and license checks still run.
+- Fix negative preview frames when an animation timestamp precedes the Play click, including pause/resume and end-of-scene replay.
+- Default the starter scene to 1280×720 and show the complete local export path; clarify that the standalone tool has no S3 upload or project connection.
+- Styled, responsive quickstart workspace with preview transport and an in-browser local export panel.
+- Explicit rendering-tool download, prerequisite checks, build/render status, actionable errors and completed MP4 downloads.
+- Browser exports save unique videos and manifests in `renders/` without replacing earlier exports; CLI export remains available.
+
 ## 0.1.0
 
 - Initial public `@machinal/scenes` distribution, combining the runtime and Svelte integration in one package.

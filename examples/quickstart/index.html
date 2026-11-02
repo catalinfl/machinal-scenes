@@ -6,15 +6,43 @@
     <title>Machinal scenes quickstart</title>
   </head>
   <body>
+    <header class="command-bar">
+      <span class="brand">Machinal <span>Scenes</span></span>
+      <span>Local scene workspace</span>
+    </header>
     <main>
-      <h1>@machinal/scenes</h1>
-      <div id="scene"></div>
-      <p>
-        <button id="play" type="button" disabled>Play</button>
-        <label>Frame <input id="frame" type="range" min="0" max="179" value="0" disabled /></label>
-        <output id="status" role="status">Preparing scene...</output>
-      </p>
+      <div class="heading">
+        <h1>Your first scene, ready to move.</h1>
+        <p>Preview the animation. Render it locally. Take the MP4 with you.</p>
+      </div>
+      <div class="workbench">
+        <section class="viewer" aria-labelledby="preview-title">
+          <div class="panel-heading">
+            <h2 id="preview-title">Scene preview</h2>
+            <span id="dimensions" class="measurement"></span>
+          </div>
+          <div id="viewport"><div id="scene"></div></div>
+          <div class="transport">
+            <button id="play" type="button" disabled>Play</button>
+            <button id="reset" type="button" disabled>Reset</button>
+            <label class="scrubber"><span class="sr-only">Frame</span><input id="frame" type="range" min="0" max="179" value="0" disabled /></label>
+            <output id="counter" class="measurement" aria-live="off">000 / 179</output>
+          </div>
+          <p id="status" class="preview-status" role="status">Preparing scene...</p>
+        </section>
+        <aside id="export" aria-label="Export video"></aside>
+      </div>
+      <section class="source-guide" aria-labelledby="source-title">
+        <h2 id="source-title">Make it your own</h2>
+        <p>Edit <code>src/Title.svelte</code> for the artwork, or <code>scene.config.json</code> for dimensions, duration and props. Save to update the preview, then render again.</p>
+        <details>
+          <summary>Prefer the terminal?</summary>
+          <p>In this project directory, run <code>npm run setup</code> once, then <code>npm run render</code>. The CLI saves <code>scene.mp4</code> and its manifest in this directory.</p>
+          <p>For another export, use <code>npm run render -- --output second.mp4</code>. Existing files are never replaced.</p>
+        </details>
+      </section>
     </main>
+    <footer>Standalone local tool. No account, API key, project connection or cloud upload.</footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

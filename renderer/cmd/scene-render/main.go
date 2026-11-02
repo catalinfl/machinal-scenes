@@ -16,7 +16,10 @@ import (
 	sceneengine "github.com/catalinfl/machinal-scenes/renderer"
 )
 
+var version = "dev"
+
 type cliOptions struct {
+	printVersion   bool
 	requestFile    string
 	output         string
 	serveDirectory string
@@ -36,6 +39,7 @@ func main() {
 func parseFlags() cliOptions {
 	var options cliOptions
 	var allowedOrigins string
+	flag.BoolVar(&options.printVersion, "version", false, "print the renderer version")
 	flag.StringVar(&options.requestFile, "request", "", "JSON/YAML job file (required)")
 	flag.StringVar(&options.output, "output", "", "new .mp4 or .webm output file (required)")
 	flag.StringVar(&options.serveDirectory, "serve", "", "serve a built scene directory on an ephemeral loopback port")
@@ -59,6 +63,12 @@ func parseFlags() cliOptions {
 }
 
 func run(ctx context.Context, options cliOptions, stdout, stderr io.Writer) error {
+	if options.printVersion {
+		if _, err := fmt.Fprintf(stdout, "machinal-scene-render %s\n", version); err != nil {
+			return fmt.Errorf("write renderer version: %w", err)
+		}
+		return nil
+	}
 	if options.requestFile == "" || options.output == "" {
 		return fmt.Errorf("-request and -output are required")
 	}

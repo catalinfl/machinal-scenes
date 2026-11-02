@@ -8,6 +8,7 @@ import { rendererTargets } from '../node/platforms.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const renderer = join(root, 'renderer');
 const output = join(root, 'native');
+const { version } = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 await mkdir(output, { recursive: true });
 const manifest = { version: 1, targets: [] };
 
@@ -16,7 +17,7 @@ for (const target of rendererTargets) {
   const temporary = `${destination}.building`;
   await mkdir(dirname(destination), { recursive: true });
   try {
-    execFileSync('go', ['build', '-trimpath', '-buildvcs=false', '-ldflags=-s -w', '-o', temporary, './cmd/scene-render'], {
+    execFileSync('go', ['build', '-trimpath', '-buildvcs=false', `-ldflags=-s -w -X main.version=${version}`, '-o', temporary, './cmd/scene-render'], {
       cwd: renderer,
       env: { ...process.env, CGO_ENABLED: '0', GOOS: target.goos, GOARCH: target.goarch },
       stdio: 'inherit',
