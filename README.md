@@ -4,6 +4,10 @@ Author, preview and render frame-driven **Svelte 5**, HTML/CSS and Three.js scen
 
 One npm package contains the runtime, Svelte integration, Node rendering API, CLI and precompiled native renderer. No private service or Go installation is required to author or export a video.
 
+![Scene showcase: a Three.js shaft assembly, bold typography and SVG choreography.](docs/images/scene-engine-showcase.png)
+
+Build [frame-driven typography](#your-first-scene), vector choreography and [Three.js assemblies](#threejs-and-media).
+
 ## Install
 
 In a Svelte 5 project with a Svelte-aware bundler, such as Vite:
